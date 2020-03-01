@@ -12,8 +12,12 @@ class SudokuDataset(Dataset):
        
     def __getitem__(self, i):
         row = self.data.iloc[i]
-        x = row['puzzle']
-        y = row['solution']
+        if 'puzzle' in row:
+            x = row['puzzle']
+            y = row['solution']
+        else:
+            x = row['quizzes']
+            y = row['solutions']
         if self.mono:
             x = self.to_mono_grid(x)
         else:
@@ -23,24 +27,20 @@ class SudokuDataset(Dataset):
         
     @staticmethod    
     def to_mono_grid(x):
-        print(x)
         res = np.zeros(81)
         for i in range(len(x)):
             res[i] = int(x[i])
         res = res.reshape((9,9))
-        print(res)
         return res
     
     @staticmethod
     def to_stacked_grid(x):
-        print(x)
         res = np.zeros((9,81))
         for i in range(len(x)):
             val = int(x[i])
             if val != 0:
                 res[val-1][i] = 1
         res = res.reshape((9,9,9))
-        print(res)
         return res
     
 def get_loader(train=True, mono=True, batch_size=42):
