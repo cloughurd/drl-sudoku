@@ -22,7 +22,7 @@ class SudokuDataset(Dataset):
             x = self.to_mono_grid(x)
         else:
             x = self.to_stacked_grid(x)
-        y = self.to_mono_grid(y)
+        y = self.to_mono_grid(y).squeeze(0) -1
         return x, y
         
     @staticmethod    
@@ -30,7 +30,7 @@ class SudokuDataset(Dataset):
         res = np.zeros(81)
         for i in range(len(x)):
             res[i] = int(x[i])
-        res = res.reshape((9,9))
+        res = res.reshape((1,9,9))
         return res
     
     @staticmethod
@@ -43,11 +43,11 @@ class SudokuDataset(Dataset):
         res = res.reshape((9,9,9))
         return res
     
-def get_loader(train=True, mono=True, batch_size=42):
+def get_loader(root, train=True, mono=True, batch_size=42):
     if train:
-        source = 'sudoku.csv'
+        source = root + 'sudoku.csv'
     else:
-        source = 'sudoku_test.csv'
+        source = root + 'sudoku_test.csv'
         
     dataset = SudokuDataset(source, mono)
     return DataLoader(dataset, shuffle=train, batch_size=batch_size)
