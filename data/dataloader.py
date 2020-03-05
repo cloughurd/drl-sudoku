@@ -10,7 +10,7 @@ class SudokuDataset(Dataset):
         
     def __len__(self):
         if self.cap_train is not None:
-            return min(len(self.data), cap_train)
+            return min(len(self.data), self.cap_train)
         return len(self.data)
        
     def __getitem__(self, i):
