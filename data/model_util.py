@@ -6,6 +6,6 @@ def count_params(model):
     params = sum([np.prod(p.size()) for p in model_parameters])
 
 def stacked_to_mono(puzzles):
-    zeros_mask = torch.all(puzzles == 0, dim=0)
-    maxes = puzzles.argmax(dim=0)
-    return torch.where(zeros_mask, torch.zeros(zeros_mask.size()).cuda(), maxes.float() + 1)
+    zeros_mask = torch.all(puzzles == 0, dim=0).cuda()
+    maxes = puzzles.argmax(dim=0).cuda()
+    return torch.where(zeros_mask, torch.zeros(zeros_mask.size()).cuda(), maxes.float().cuda() + 1).cuda()
