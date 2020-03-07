@@ -4,7 +4,7 @@ import numpy as np
 
 class SudokuDataset(Dataset):
     def __init__(self, file, mono=True, cap_train=None):
-        self.data = pd.read_csv(file)
+        self.data = pd.read_csv(file, nrows=cap_train)
         self.mono = mono
         self.cap_train = cap_train
         
