@@ -71,6 +71,7 @@ class BigNet(nn.Module):
             ResBlock(256, 256),
             nn.Flatten(),
             nn.Linear(81*256, 81*64),
+            nn.ReLU(),
             nn.Linear(81*64, 81*9)
         )
         
