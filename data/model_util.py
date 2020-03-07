@@ -8,4 +8,4 @@ def count_params(model):
 def stacked_to_mono(puzzles):
     zeros_mask = torch.all(puzzles == 0, dim=0)
     maxes = puzzles.argmax(dim=0)
-    return torch.where(zeros_mask, torch.zeros(zeros_mask.size()), maxes.float() + 1)
+    return torch.where(zeros_mask, torch.zeros(zeros_mask.size()).cuda(), maxes.float() + 1)
