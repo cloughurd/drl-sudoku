@@ -52,3 +52,28 @@ class BasicNet(nn.Module):
     def forward(self, x):
         y = self.net(x).reshape((-1, 81, 9))
         return y
+    
+class BigNet(nn.Module):
+    def __init__(self, in_c):
+        super(BigNet, self).__init__()
+        self.net = nn.Sequential(
+            ResBlock(1, 8),
+            ResBlock(8, 8),
+            ResBlock(8, 16),
+            ResBlock(16, 16),
+            ResBlock(16, 32),
+            ResBlock(32, 32),
+            ResBlock(32, 64),
+            ResBlock(64, 64),
+            ResBlock(64, 128),
+            ResBlock(128, 128),
+            ResBlock(128, 256),
+            ResBlock(256, 256),
+            nn.Flatten(),
+            nn.Linear(81*256, 81*64),
+            nn.Linear(81*64, 81*9)
+        )
+        
+    def forward(self, x):
+        y = self.net(x).reshape((-1, 81, 9))
+        return y
