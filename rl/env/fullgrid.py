@@ -4,8 +4,12 @@ import numpy as np
 from .isudokuenv import ISudokuEnv
 
 class GridEnv(ISudokuEnv):
-    def __init__(self, file, max_len=None):
+    def __init__(self, file, max_len=None, weight=False):
         self.data = pd.read_csv(file, nrows=max_len)
+        if weight:
+            self.data['weight'] = self.data.puzzle.apply(lambda p: 81-p.count('0'))
+        else:
+            self.data['weight'] = 1
         
     @staticmethod    
     def to_mono_grid(x):
@@ -26,7 +30,7 @@ class GridEnv(ISudokuEnv):
         return res
 
     def reset(self):
-        row = self.data.sample().iloc[0]
+        row = self.data.sample(weights='weight').iloc[0]
         if 'puzzle' in row:
             x = row['puzzle']
             y = row['solution']
@@ -67,7 +71,7 @@ class GridEnv(ISudokuEnv):
             new_state = state.copy()
             new_state[int(goal[x,y]), x, y] = 1
             d = False
-            if 0 not in new_state:
+            if np.sum(new_state) == 81:
                 return new_state, -2, True
             else:
                 return new_state, -2, False
