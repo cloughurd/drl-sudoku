@@ -19,7 +19,7 @@ def get_action_dqn(network, state, epsilon, epsilon_decay, device='cuda'):
     action = random.randrange(0, network.output_size)
   else:
     pred = network(torch.from_numpy(state).to(device=device).float().unsqueeze(0))
-    action = torch.argmax(pred[0,:])
+    action = torch.argmax(pred.reshape(1, 81*9))
     action = action.item()
   epsilon *= epsilon_decay
   return action, epsilon
