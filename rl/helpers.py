@@ -69,7 +69,7 @@ def learn_dqn(batch, optim, q_network, target_network, gamma, global_step, targe
   q_output = q_network(state).reshape(-1, 81*9)
   q_output = torch.gather(q_output, 1, action.reshape(-1,1).to(device=device)).squeeze(1)
 
-  target_output = target_network(next_state).reshape(-1, 81*9)
+  target_output = target_network(next_state).reshape(-1, 81*9).detach()
   target_output, _ = torch.max(target_output, axis=1)
 
   loss = reward + (gamma * target_output)
