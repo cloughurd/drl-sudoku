@@ -1,75 +1,89 @@
-import torch
+import pandas as pd
+import numpy as np
 
 from .isudokuenv import ISudokuEnv
 
 class GridEnv(ISudokuEnv):
+    def __init__(self, file, max_len=None):
+        self.data = pd.read_csv(file, nrows=max_len)
+        
+    @staticmethod    
+    def to_mono_grid(x):
+        res = np.zeros(81)
+        for i in range(len(x)):
+            res[i] = int(x[i])
+        res = res.reshape((9,9))
+        return res
+
+    @staticmethod
+    def to_stacked_grid(x):
+        res = np.zeros((9,81))
+        for i in range(len(x)):
+            val = int(x[i])
+            if val != 0:
+                res[val-1][i] = 1
+        res = res.reshape((9,9,9))
+        return res
+
+    def reset(self):
+        row = self.data.sample().iloc[0]
+        if 'puzzle' in row:
+            x = row['puzzle']
+            y = row['solution']
+        else:
+            x = row['quizzes']
+            y = row['solutions']
+        
+        x = self.to_stacked_grid(x)
+        y = self.to_mono_grid(y) -1
+        return x, y
+
     '''
     Params:
-        state: tensor (BSx1x9x9) representing current current sudoku board
-        action: tensor (BSx81*9) representing the options to place a number in a cell
-        goal: tensor (BSx9x9) representing the ground truth completed puzzle
+        state: np array (9x9x9) representing current current sudoku board
+        action: int (from 0 to 81*9) representing the options to place a number in a cell
+        goal: np array (9x9) representing the ground truth completed puzzle
 
     Returns:
-        new_states: tensor (BSx1x9x9) representing new board
-        rewards: tensor (BSx1) representing reward for each state/action/goal pair
-        done: list of BS booleans representing if that puzzle is complete 
+        new_state: np array (9x9x9) representing new board
+        reward: int representing reward for state/action/goal pair
+        done: boolean representing if that puzzle is complete 
     '''
     @staticmethod
     def act(state, action, goal):
-        new_states = []
-        rewards = []
-        done = []
-        for i in range(len(state)):
-            current = state[i, :, :, :]
-            act = action[i, :]
-            complete = goal[i, :]
-            argmax = act.argmax().item()
-            coord = argmax % 81
-            val = (argmax // 81) + 1
-            x = coord // 9
-            y = coord % 9
+        coord = action % 81
+        val = (action // 81)
+        x = coord // 9
+        y = coord % 9
 
-            if current[0, x, y] != 0:
-                rewards.append([-2])
-                new_states.append(current)
-                done.append(False)
-                continue
+        if 1 in state[:, x, y]:
+            return state, -2, False
 
-            quadrant_start_x = x // 3
-            quadrant_start_y = y // 3
-            if val in current[0, x, :] or val in current[0, :, y] or \
-                    val in current[0, quadrant_start_x:quadrant_start_x+3, quadrant_start_y:quadrant_start_y+3]:
-                rewards.append([-1])
-                new_state = current.clone()
-                new_state[0, x, y] = complete[x, y] + 1
-                new_states.append(new_state)
-                d = False
-                if 0 not in new_state:
-                    d = True
-                done.append(d)
-                continue
-
-            if complete[x, y] == val-1:
-                new_state = current.clone()
-                new_state[0, x, y] = val
-                new_states.append(new_state)
-                if 0 not in new_state:
-                    rewards.append([10])
-                    done.append(True)
-                    continue
-                if 0 not in new_state[0, x, :] or 0 not in new_state[0, :, y] or \
-                        0 not in new_state[0, quadrant_start_x:quadrant_start_x+3, quadrant_start_y:quadrant_start_y+3]:
-                    rewards.append([1])
-                    done.append(False)
-                    continue
-
-            rewards.append([0])
-            new_state = current.clone()
-            new_state[0, x, y] = complete[x, y] + 1
-            new_states.append(new_state)
+        quadrant_start_x = x // 3
+        quadrant_start_y = y // 3
+        if 1 in state[val, x, :] or 1 in state[val, :, y] or \
+                1 in state[val, quadrant_start_x:quadrant_start_x+3, quadrant_start_y:quadrant_start_y+3]:
+            r = -1
+            new_state = state.copy()
+            new_state[int(goal[x,y]), x, y] = 1
             d = False
             if 0 not in new_state:
-                d = True
-            done.append(d)
+                return new_state, -1, True
+            else:
+                return new_state, -1, False
 
-        return torch.stack(new_states).squeeze(0), torch.tensor(rewards), done
+        if goal[x, y] == val:
+            new_state = state.copy()
+            new_state[val, x, y] = 1
+            if np.sum(new_state) == 81:
+                return new_state, 10, True
+            if np.sum(new_state[:, x, :]) == 9 or np.sum(new_state[:, :, y]) == 9 or \
+                    np.sum(new_state[:, quadrant_start_x:quadrant_start_x+3, quadrant_start_y:quadrant_start_y+3]) == 9:
+                return new_state, 1, True
+
+        new_state = state.copy()
+        new_state[int(goal[x,y]), x, y] = 1
+        if np.sum(new_state) == 81:
+            return new_state, 0, True
+        else:
+            return new_state, 0, False
