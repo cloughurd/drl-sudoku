@@ -3,8 +3,19 @@ import pandas as pd
 import numpy as np
 
 class SudokuDataset(Dataset):
-    def __init__(self, file, mono=True, cap_train=None):
-        self.data = pd.read_csv(file, nrows=cap_train)
+    def __init__(self, file, mono=True, cap_train=None, sort=False):
+        if sort:
+            csv = pd.read_csv(file)
+            empty_counts = csv['puzzle'].apply(lambda p: p.count('0'))
+            csv['num_empty'] = empty_counts
+            csv.sort_values(by="num_empty", inplace=True)
+
+            if cap_train is not None:
+                csv = csv.head(cap_train)
+
+            self.data = csv
+        else:
+            self.data = pd.read_csv(file, nrows=cap_train)
         self.mono = mono
         self.cap_train = cap_train
         
@@ -54,4 +65,12 @@ def get_loader(root, train=True, mono=True, batch_size=42, cap_train=None):
         
     dataset = SudokuDataset(source, mono, cap_train)
     return DataLoader(dataset, shuffle=train, batch_size=batch_size)
+
+def get_sorted_loader(root, train=True, mono=True, batch_size=42, cap_train=None):
+    if train:
+        source = root + 'sudoku.csv'
+    else:
+        source = root + 'sudoku_test.csv'
         
+    dataset = SudokuDataset(source, mono, cap_train, sort=True)
+    return DataLoader(dataset, shuffle=False, batch_size=batch_size)
