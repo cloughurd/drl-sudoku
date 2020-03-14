@@ -57,7 +57,7 @@ class GridEnv(ISudokuEnv):
         y = coord % 9
 
         if 1 in state[:, x, y]:
-            return state, -2, False
+            return state, -3, False
 
         quadrant_start_x = x // 3
         quadrant_start_y = y // 3
@@ -68,9 +68,9 @@ class GridEnv(ISudokuEnv):
             new_state[int(goal[x,y]), x, y] = 1
             d = False
             if 0 not in new_state:
-                return new_state, -1, True
+                return new_state, -2, True
             else:
-                return new_state, -1, False
+                return new_state, -2, False
 
         if goal[x, y] == val:
             new_state = state.copy()
@@ -79,6 +79,8 @@ class GridEnv(ISudokuEnv):
                 return new_state, 10, True
             if np.sum(new_state[:, x, :]) == 9 or np.sum(new_state[:, :, y]) == 9 or \
                     np.sum(new_state[:, quadrant_start_x:quadrant_start_x+3, quadrant_start_y:quadrant_start_y+3]) == 9:
+                return new_state, 3, True
+            else:
                 return new_state, 1, True
 
         new_state = state.copy()
