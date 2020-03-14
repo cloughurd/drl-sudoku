@@ -79,7 +79,7 @@ class GridEnv(ISudokuEnv):
                 return new_state, 10, True
             if np.sum(new_state[:, x, :]) == 9 or np.sum(new_state[:, :, y]) == 9 or \
                     np.sum(new_state[:, quadrant_start_x:quadrant_start_x+3, quadrant_start_y:quadrant_start_y+3]) == 9:
-                return new_state, 3, True
+                return new_state, 5, True
             else:
                 return new_state, 1, True
 
