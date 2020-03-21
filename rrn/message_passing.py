@@ -17,7 +17,7 @@ def message_passing(nodes, edges, edge_features, message_fn, edge_keep_prob=1.0)
     n_features = nodes.size(1)
     n_edges = edges.size(0)
 
-    message_inputs = torch.gather(nodes, edges).view(-1, 2 * n_features)
+    message_inputs = torch.gather(nodes, 1, edges).view(-1, 2 * n_features)
     reshaped = torch.concat((message_inputs, edge_features))
     messages = message_fn(reshaped)
     messages = F.dropout(messages, 1 - edge_keep_prob)
