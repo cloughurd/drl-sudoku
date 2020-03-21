@@ -3,6 +3,8 @@ import os
 import urllib.request
 import zipfile
 
+from torch.utils.data import Dataset, DataLoader
+
 import pandas as pd
 import numpy as np
  
