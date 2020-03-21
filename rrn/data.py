@@ -5,7 +5,7 @@ import zipfile
 
 import pandas as pd
 import numpy as np
-
+ 
 def sudoku_edges():
     def cross(a):
         return [(i, j) for i in a.flatten() for j in a.flatten() if not i == j]

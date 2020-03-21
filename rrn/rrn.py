@@ -5,6 +5,7 @@ from message_passing import message_passing
 
 class SudokuRecurrentRelationalNet(nn.Module):
     def __init__(self):
+        super(SudokuRecurrentRelationalNet, self).__init__()
         self.global_step = 0
         self.num_steps = 32
         self.mlp_hidden = 96
