@@ -11,7 +11,7 @@ import numpy as np
  
 def sudoku_edges():
     def cross(a):
-        return [[i, j] for i in a.flatten() for j in a.flatten() if not i == j]
+        return [(i, j) for i in a.flatten() for j in a.flatten() if not i == j]
 
     idx = np.arange(81).reshape(9, 9)
     rows, columns, squares = [], [], []
@@ -21,7 +21,7 @@ def sudoku_edges():
     for i in range(3):
         for j in range(3):
             squares += cross(idx[i * 3:(i + 1) * 3, j * 3:(j + 1) * 3])
-    return list(set(rows + columns + squares))
+    return np.array([*zip(list(set(rows + columns + squares)))])
 
 class sudoku:
     url = "https://www.dropbox.com/s/rp3hbjs91xiqdgc/sudoku-hard.zip?dl=1"  # See generate_hard.py on how this dataset was generated
