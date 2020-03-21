@@ -3,6 +3,7 @@ import os
 import urllib.request
 import zipfile
 
+
 from torch.utils.data import Dataset, DataLoader
 
 import pandas as pd
@@ -10,7 +11,7 @@ import numpy as np
  
 def sudoku_edges():
     def cross(a):
-        return [(i, j) for i in a.flatten() for j in a.flatten() if not i == j]
+        return [[i, j] for i in a.flatten() for j in a.flatten() if not i == j]
 
     idx = np.arange(81).reshape(9, 9)
     rows, columns, squares = [], [], []
@@ -83,7 +84,7 @@ class SudokuGraphDataset(Dataset):
         x, y = self._parse(x), self._parse(y)
         x, y = np.array(x, np.int32), np.array(y, np.int32)
 
-        return (x, self.edges), y
+        return (x, np.array(self.edges)), y
         
     @staticmethod    
     def to_mono_grid(x):
