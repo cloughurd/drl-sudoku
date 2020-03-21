@@ -13,6 +13,10 @@ def message_passing(nodes, edges, edge_features, message_fn, edge_keep_prob=1.0)
     :param edge_keep_prob: The probability by which edges are kept. Basically dropout for edges. Not used in the paper.
     :return: (n_nodes, n_output) Sum of messages arriving at each node.
     """
+    print(f"Nodes: {nodes.size()}")
+    print(f"Edges: {edges.size()}")
+    print(f"E-features: {edge_features}")
+    
     n_nodes = nodes.size(0)
     n_features = nodes.size(1)
     n_edges = edges.size(0)
