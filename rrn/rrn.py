@@ -16,9 +16,8 @@ class SudokuRecurrentRelationalNet(nn.Module):
         self.pre = self.get_mlp(self.mlp_hidden, self.mlp_depth)
         self.post = self.get_mlp(self.mlp_hidden, self.mlp_depth)
         self.update = nn.LSTM(self.mlp_hidden, self.lstm_hidden)
-        self.message_fn = get_mlp(self.mlp_hidden, self.mlp_depth)
+        self.message_fn = self.get_mlp(self.mlp_hidden, self.mlp_depth)
         self.output = nn.Linear(96, 10)
-        self.softmax
 
     def get_mlp(self, n_hidden, depth):
         return nn.Sequential(
